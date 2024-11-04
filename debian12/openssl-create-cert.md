@@ -1,4 +1,4 @@
-# Script em Shell Automatizando criação de certificado SSL em Container
+# Script em Shell Automatizando criação de certificado SSL (OpenSSL) em Container
 
 Esse script ele instala o docker, depois cria o diretório conforme o padrão que está na documentação, logo após isso ele cria o docker-compose.yaml e lembrando que tem campos no arquivo do docker compose que devem ser preenchido de acordo com seu ambiente, tais como:
 
