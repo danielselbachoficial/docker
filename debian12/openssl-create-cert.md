@@ -2,13 +2,13 @@
 
 Esse script ele instala o docker, depois cria o diretório conforme o padrão que está na documentação, logo após isso ele cria o docker-compose.yaml e lembrando que tem campos no arquivo do docker compose que devem ser preenchido de acordo com seu ambiente, tais como:
 
-COMMON_NAME = Insira um nome comum (ex: www.exemplo.com)
-ORGANIZATION = Nome da Organização (ex: empresa xyz)
-ORG_UNIT = Unidade Organizacional (ex: TI)
-CITY = Nome da cidade (ex: Florianopolis)
-STATE = Nome do estado (ex: Santa Catarina)
-COUNTRY = Nome do país (ex: BR)
-EMAIL = Endereço de e-mail (ex: seuemail@seudominio)
+COMMON_NAME = Insira um nome comum (ex: www.exemplo.com)</br>
+ORGANIZATION = Nome da Organização (ex: empresa xyz)</br>
+ORG_UNIT = Unidade Organizacional (ex: TI)</br>
+CITY = Nome da cidade (ex: Florianopolis)</br>
+STATE = Nome do estado (ex: Santa Catarina)</br>
+COUNTRY = Nome do país (ex: BR)</br>
+EMAIL = Endereço de e-mail (ex: seuemail@seudominio)</br>
 
 Você deve salvar esse Script que está abaixo com o nome que desejar, recomendo como create-cert.sh pois é em shellscript e não pode esquecer o ".sh", você deve dar permissão a esse script.
 
