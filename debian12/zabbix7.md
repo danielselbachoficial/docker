@@ -24,8 +24,12 @@ chmod +x zabbix.sh
 ```sh
 #!/bin/bash
 
-# Atualizar o sistema
-sudo apt update && sudo apt upgrade -y
+# Instalar o sudo
+apt-get install sudo
+
+# Atualizar repositórios de sistema
+sudo apt update -y && apt upgrade -y
+apt list --upgradable
 
 # Instalar dependências necessárias
 sudo apt install -y apt-transport-https ca-certificates curl gnupg lsb-release
