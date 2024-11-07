@@ -63,16 +63,16 @@ sudo mkdir -p /home/zabbix/
 
 # Criar o arquivo docker-compose.yaml
 cat <<EOF > /home/zabbix/docker-compose.yaml
-version: '3.5'
 services:
   zabbix-server:
     container_name: "zabbix-server"
-    image: zabbix/zabbix-server-pgsql:alpine-trunk
+    image: zabbix/zabbix-server-pgsql:alpine-7.0-latest
     restart: always
     ports:
-      - 10051:10051
+      - "10051:10051"
     networks:
-      - zabbix7
+      zabbix7:
+        ipv4_address: "172.18.0.2"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -82,8 +82,8 @@ services:
       ZBX_HISTORYINDEXCACHESIZE: 1024M
       ZBX_TRENDCACHESIZE: 1024M
       ZBX_VALUECACHESIZE: 1024M
-      DB_SERVER_HOST: "zabbix_db"
-      DB_PORT: 5432
+      DB_SERVER_HOST: "172.18.0.4"
+      DB_PORT: 13900
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "zabbix123"
       POSTGRES_DB: "zabbix_db"
@@ -97,28 +97,30 @@ services:
 
   zabbix-web-nginx-pgsql:
     container_name: "zabbix-web"
-    image: zabbix/zabbix-web-nginx-pgsql:alpine-trunk
+    image: zabbix/zabbix-web-nginx-pgsql:alpine-7.0-latest
     restart: always
     ports:
-      - 13200:8080
-      - 13400:8443
+      - "8080:8080"
+      - "8443:8443"
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ./cert/:/usr/share/zabbix/conf/certs/:ro
     networks:
-      - zabbix7
+      zabbix7:
+        ipv4_address: "172.18.0.3"
     environment:
-      DB_SERVER_HOST: "zabbix_db"
-      DB_PORT: 5432
+      ZBX_SERVER_HOST: "172.18.0.2"
+      DB_SERVER_HOST: "172.18.0.4"
+      DB_PORT: 13900
       POSTGRES_USER: "zabbix"
-      POSTGRES_PASSWORD: "zabbix123"
+      POSTGRES_PASSWORD: "zabbix123*"
       POSTGRES_DB: "zabbix_db"
       ZBX_MEMORYLIMIT: "1024M"
     depends_on:
       - zabbix-server
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:13200/ping"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/ping"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -132,10 +134,9 @@ services:
       com.zabbix.dbtype: "pgsql"
       com.zabbix.os: "alpine"
 
-  zabbix-db-agent2:
-    container_name: "zabbix-agent2"
-    image: zabbix/zabbix-agent2:alpine-trunk
-    user: root
+  zabbix-db-agent:
+    container_name: "zabbix-agent"
+    image: zabbix/zabbix-agent:alpine-7.0-latest
     depends_on:
       - zabbix-server
     volumes:
@@ -144,41 +145,41 @@ services:
       - /run/docker.sock:/var/run/docker.sock
     environment:
       ZBX_HOSTNAME: "zabbix7"
-      ZBX_SERVER_HOST: "127.0.0.1"
-      ZBX_PASSIVE_ALLOW: "true"
-      ZBX_PASSIVESERVERS: "zabbix_db"
+      ZBX_SERVER_HOST: "172.18.0.2"
       ZBX_ENABLEREMOTECOMMANDS: "1"
-      ZBX_ACTIVE_ALLOW: "false"
-      ZBX_DEBUGLEVEL: "3"
-    privileged: true
-    pid: "host"
     ports:
-      - 10050:10050
-      - 31999:31999
+      - "10050:10050"
+      - "31999:31999"
     networks:
-      - zabbix7
+      zabbix7:
+        ipv4_address: "172.18.0.5"
     stop_grace_period: 5s
 
   db:
     container_name: "zabbix_db"
-    image: postgres:15.6-bullseye
+    image: postgres:16-bullseye
     restart: always
     volumes:
-     - zbx_db15:/var/lib/postgresql/data
+      - zbx_db16:/var/lib/postgresql/data
     ports:
-     - 5432:5432
+      - "5432:5432"
     networks:
-     - zabbix7
+      zabbix7:
+        ipv4_address: "172.18.0.4"
     environment:
-     POSTGRES_USER: "zabbix"
-     POSTGRES_PASSWORD: "zabbix123"
-     POSTGRES_DB: "zabbix_db"
+      POSTGRES_USER: "zabbix"
+      POSTGRES_PASSWORD: "zabbix123"
+      POSTGRES_DB: "zabbix_db"
 
 networks:
   zabbix7:
-   driver: bridge
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.18.0.0/16"
+
 volumes:
-  zbx_db15:
+  zbx_db16:
 EOF
 
 # Navegar para o diretório e criar os containers
