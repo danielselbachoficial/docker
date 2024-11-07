@@ -2,7 +2,7 @@ Sejam bem-vindos ao repositório com scripts de Docker.
 
 Me chamo Daniel Selbach, sou profissional de TI, YouTuber, empreendedor.
 
-Neste repositório você encontrará os meus scripts criados na linguagem Shell Script para automatizar tarefas como instalação de servidor DNS, entre outras.
+Neste repositório você encontrará os meus scripts criados para instalar o docker-ce, zabbix7, entre outros...
 
 Daniel Selbach<br>
 Instagram Daniel Selbach: https://www.instagram.com/danielselbachtechofc/<br>
