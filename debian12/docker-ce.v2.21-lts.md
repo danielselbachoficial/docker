@@ -2,10 +2,6 @@
 
 Esse script ele instala o docker, depois cria o diretório conforme o padrão que está na documentação, logo após isso ele cria o docker-compose.yaml e lembrando que tem campos no arquivo do docker compose que devem ser preenchido de acordo com seu ambiente, tais como:
 
-DB_SERVER_HOST: Colocar o IP ou DNS do seu Zabbix
-
-ZBX_PASSIVESERVERS:Colocar o IP ou DNS do seu Zabbix
-
 Você deve salvar esse Script que está abaixo com o nome que desejar, recomendo como docker-ce.v2.21.sh pois é em shellscript e não pode esquecer o ".sh", você deve dar permissão a esse script.
 
 ## Comando para criar o arquivo
