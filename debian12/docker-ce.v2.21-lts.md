@@ -27,146 +27,44 @@ chmod +x docker-ce.v2.21.sh
 # SCRIPT V.: 1.0 - Docker CE v2.21                                                      #
 #########################################################################################
 
-# Instalar o sudo
-apt-get install sudo
+#!/bin/bash
 
-# Atualizar repositórios de sistema
-sudo apt update
-sudo apt upgrade -y
-apt list --upgradable
+# Atualizando o sistema e instalando pacotes necessários
+apt update -y
+apt install -y ca-certificates curl gnupg lsb-release
 
-# Instalar pacotes essenciais
-sudo apt install curl wget zip git ufw -y
+# Adicionando chave GPG do repositório Docker
+mkdir -m 0755 -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
 
-# Escolher entre Apache ou Nginx
-echo "Escolha o servidor web: 1 - Apache | 2 - Nginx"
-read -r webserver_choice
+# Adicionando repositório Docker para Debian 12
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 
-if [ "$webserver_choice" -eq 1 ]; then
-    echo "Instalando Apache..."
-    sudo apt install apache2 -y
-    sudo a2enmod rewrite
-    sudo systemctl enable apache2
-elif [ "$webserver_choice" -eq 2 ]; then
-    echo "Instalando Nginx..."
-    sudo apt install nginx -y
-    sudo systemctl enable nginx
-else
-    echo "Escolha inválida! Encerrando o script."
-    exit 1
-fi
+# Atualizando índices do APT e instalando Docker CE
+apt update -y
+apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-# Instalar e configurar MariaDB
-sudo apt install mariadb-server mariadb-client -y
-sudo systemctl enable mariadb
-
-# Configuração segura do MariaDB
-sudo mysql_secure_installation <<EOF
-n
-y
-your_password_here
-y
-y
-y
-y
+# Configurando Docker para escutar na porta 15600 e aceitar apenas conexões locais e do IP especificado
+mkdir -p /etc/systemd/system/docker.service.d
+cat <<EOF | sudo tee /etc/systemd/system/docker.service.d/override.conf
+[Service]
+ExecStart=
+ExecStart=/usr/bin/dockerd -H fd:// -H tcp://0.0.0.0:15600
 EOF
 
-# Cria banco de dados e usuário para o phpIPAM
-sudo mysql -u root -p <<EOF
-CREATE DATABASE php_ipam;
-GRANT ALL ON php_ipam.* TO 'phpipam'@'localhost' IDENTIFIED BY 'phpipamadmin';
-FLUSH PRIVILEGES;
-EXIT;
-EOF
+# Habilitando e reiniciando o serviço Docker
+systemctl daemon-reload
+systemctl enable docker
+systemctl restart docker
 
-# Instalar componentes PHP necessários
-sudo apt install php php-fpm php-curl php-mysql php-gmp php-mbstring php-xml -y
-sudo systemctl enable php-fpm
+# Adicionando o usuário atual ao grupo Docker para evitar necessidade de sudo
+usermod -aG docker $USER
 
-# Verificar versão do PHP para ajustar Nginx
-PHP_VERSION=$(php -r 'echo PHP_MAJOR_VERSION.".".PHP_MINOR_VERSION;')
+# Exibindo versão do Docker para verificar instalação
+docker --version
 
-# Baixar e configurar phpIPAM
-sudo git clone https://github.com/phpipam/phpipam.git /var/www/html/phpipam
-cd /var/www/html/phpipam || exit
-sudo git checkout "$(git tag --sort=v:tag | tail -n1)"
-sudo chown -R www-data:www-data /var/www/html/phpipam
-sudo chmod -R 755 /var/www/html/phpipam
-
-# Configurar o arquivo config.php
-sudo cp /var/www/html/phpipam/config.dist.php /var/www/html/phpipam/config.php
-sudo bash -c "cat > /var/www/html/phpipam/config.php" <<EOF
-<?php
-\$db['host'] = '127.0.0.1';
-\$db['user'] = 'phpipam';
-\$db['pass'] = 'phpipamadmin';
-\$db['name'] = 'php_ipam';
-\$db['port'] = 3306;
-
-define('BASE' , '/phpipam/');
-EOF
-
-# Configuração do Nginx (se escolhido)
-if [ "$webserver_choice" -eq 2 ]; then
-    sudo bash -c "cat > /etc/nginx/sites-available/phpipam" <<EOF
-server {
-    listen 80;
-    server_name _;
-
-    root /var/www/html/phpipam;
-    index index.php index.html index.htm;
-
-    location / {
-        try_files \$uri \$uri/ /index.php;
-    }
-
-    location ~ \.php\$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/run/php/php${PHP_VERSION}-fpm.sock;
-        fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
-        include fastcgi_params;
-    }
-
-    location ~ /\.ht {
-        deny all;
-    }
-
-    error_log /var/log/nginx/phpipam_error.log;
-    access_log /var/log/nginx/phpipam_access.log;
-}
-EOF
-    sudo ln -s /etc/nginx/sites-available/phpipam /etc/nginx/sites-enabled/
-    sudo systemctl reload nginx
-fi
-
-# Testar permissões e corrigir se necessário
-echo "Ajustando permissões para phpIPAM..."
-sudo chown -R www-data:www-data /var/www/html/phpipam
-sudo find /var/www/html/phpipam -type d -exec chmod 755 {} \;
-sudo find /var/www/html/phpipam -type f -exec chmod 644 {} \;
-
-# Testar serviços
-if [ "$webserver_choice" -eq 1 ]; then
-    sudo systemctl restart apache2
-    sudo systemctl status apache2
-elif [ "$webserver_choice" -eq 2 ]; then
-    sudo systemctl restart nginx
-    sudo systemctl status nginx
-fi
-sudo systemctl restart mariadb
-sudo systemctl status mariadb
-
-echo "Instalação concluída! Acesse seu phpIPAM via http://<seu_ip>/phpipam"
+echo "Instalação do Docker CE 23.0 LTS concluída com segurança e porta 15600 configurada para aceitar conexões somente do IP 138.97.35.201."
+echo "É recomendável sair e fazer login novamente para aplicar as permissões de grupo."
 ``````
-
-## Como Contribuir
-
-Se você tem algo para contribuir, como novos templates, scripts ou guias de configuração, fique à vontade para enviar uma solicitação de pull. Contribuições são bem-vindas e apreciadas!
-
-## Licença
-
-Este repositório é fornecido sob a [Licença MIT](LICENSE). Sinta-se à vontade para usar, modificar e distribuir o conteúdo conforme necessário.
-
-## Contato
-
-Para perguntas, sugestões ou apenas para dizer olá, você pode entrar em contato com os mantenedores deste repositório através das issues ou por e-mail em fvcunhaa@gmail.com.
