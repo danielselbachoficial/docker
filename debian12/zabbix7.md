@@ -83,7 +83,7 @@ services:
       ZBX_TRENDCACHESIZE: 1024M
       ZBX_VALUECACHESIZE: 1024M
       DB_SERVER_HOST: "172.18.0.4"
-      DB_PORT: 13900
+      DB_PORT: 5432
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "zabbix123"
       POSTGRES_DB: "zabbix_db"
@@ -112,7 +112,7 @@ services:
     environment:
       ZBX_SERVER_HOST: "172.18.0.2"
       DB_SERVER_HOST: "172.18.0.4"
-      DB_PORT: 13900
+      DB_PORT: 5432
       POSTGRES_USER: "zabbix"
       POSTGRES_PASSWORD: "zabbix123*"
       POSTGRES_DB: "zabbix_db"
