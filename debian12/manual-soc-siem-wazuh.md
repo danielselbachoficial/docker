@@ -117,7 +117,7 @@ systemctl restart wazuh-dashboard
 
 ---
 
-## ✅ 13. Liberar portas no Firewall (UFW)
+## ✅ 13. Liberar portas no Firewall (UFW) 
 
 ```bash
 ufw allow 5601/tcp
