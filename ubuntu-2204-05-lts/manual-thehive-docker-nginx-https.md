@@ -8,7 +8,7 @@ Ambiente: Produção com HTTPS (Certificado Autoassinado ou Interno)
 ## ✅ Requisitos
 
 - Domínio local resolvido internamente (ex: `thehive.exemplo.local`)
-- VM Ubuntu Server 22.04 LTS ou Debian 12 (64 bits)
+- VM Ubuntu Server 22.04 LTS
 - Acesso root ou sudo
 - Docker e Docker Compose instalados
 - Porta 80 e 443 liberadas (internamente)
