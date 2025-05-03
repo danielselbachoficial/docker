@@ -35,8 +35,8 @@ network:
   ethernets:
     ens18:
       dhcp4: no
-      addresses: [10.0.3.11/24]
-      gateway4: 10.0.3.1
+      addresses: [192.168.20.10/24]
+      gateway4: 192.168.20.1
       nameservers:
         addresses: [1.1.1.1, 8.8.8.8]
 ```
