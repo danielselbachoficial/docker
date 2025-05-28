@@ -30,9 +30,9 @@ chmod +x create-cert.sh
 #!/bin/bash
 
 #########################################################################################
-# DANIEL S. FIGUEIRÓ                                                                    #
+# DANIEL SELBACH FIGUEIRÓ                                                               #
 # IT CONSULTANT                                                                         #
-# LINKEDIN: https://www.linkedin.com/in/danielselbachtech/                              #
+# LINKEDIN: https://www.linkedin.com/in/danielselbachoficial/   
 # SCRIPT V.: 1.0 - OpenSSL                                                              #
 #########################################################################################
 
